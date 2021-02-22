@@ -1,0 +1,466 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Aran Tester (without game client)</title>
+    </head>
+    <body>
+        <h1>Aran Online Client (alpha)</h1>
+        <button onclick="connect(false)">Connect</button> <button onclick="connect(true)">Connect (WSS)</button> <button onclick='shutdown()'>Shutdown</button><br>
+        IP Address:<input type="text" id="ip" value="localhost:8080"><br>
+        E-mail:<input type="text" id="mail"><br>
+        Username:<input type="text" id="usr"><br>
+        Password:<input type="text" id="pwd"><br>
+        <button id="btn_login" onclick="login()">Login</button><br>
+        <button id="btn_register" onclick="register()">Register</button><br>
+        Output:<br>
+        <div id="output" rows="10" style="width:400px;font-weight:normal;" contenteditable="true"></textarea></div><br>
+        Console:<br>
+        <textarea id="console" rows="4"></textarea><br>
+        <!--Movement-->
+        <div id='controls' style="visibility: hidden;">
+            <button onclick="getStatus()">Get Status</button><br>
+            <button onclick="playerRename()">Rename Player</button><br>
+            <table>
+                <tr>
+                    <td></td>
+                    <td><button id="btn_moveup" onclick="moveUp()">Up</button></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><button id="btn_moveleft" onclick="moveLeft()">Left</button></td>
+                    <td></td>
+                    <td><button id="btn_moveRight" onclick="moveRight()">Right</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><button id="btn_moveDown" onclick="moveDown()">Down</button></td>
+                    <td></td>
+                </tr>
+            </table><br>
+            <button id="btn_getin" onclick="getIn()">Get in/out</button>
+        </div>
+        <script>
+//abbr
+const server_key = 'b51A1Ui23SXji266'
+//*** - - - - - - - - - - Properties - - - - - - - - - - ***
+/**
+ * Map max size X. 
+ */
+ const MAP_MAX_X=256
+/**
+ * Map max size Y.
+ */
+const MAP_MAX_Y=256
+// *** - - - - - - - - - - Client Commands - - - - - - - - - - ***
+const LOGIN=0
+const REGISTER=1
+const REGISTER_MOBILE=2
+
+const TERMINATE=3
+
+const GET_STATUS=4
+const PLAYER_RENAME=5
+
+const MOVE_UP=6
+const MOVE_DOWN=7
+const MOVE_LEFT=8
+const MOVE_RIGHT=9
+const GET_IN=10
+
+const BLOCK_HIT=11
+// *** - - - - - - - - - - Server Responses - - - - - - - - - - ***
+const INPUT_INVALID=0
+const LOGIN_FIRST=1
+const LOGIN_TOO_MUCH=2
+const LOGIN_INVALID=3
+const LOGIN_USR_NOT_EXIST=4
+const LOGIN_GAME_DATA_NOT_EXIST=5
+const LOGIN_WRONG_PWD=6
+const LOGIN_ALREADY=7
+const LOGIN_ALREADY_ANOTHER=8
+const LOGIN_SUCCESS=9
+
+const REGISTER_FAIL=10
+const REGISTER_INVALID=11
+const REGISTER_USR_EXIST=12
+const REGISTER_SUCCESS=13
+
+const SERVER_SHUTDOWN=14
+
+const PLAYER_STATUS=15
+const RENAME_SUCCESS=16
+
+const MOVE_SLOW=17
+const MOVE_FOOT_NEED=18
+const MOVE_BOAT_NEED=19
+const MOVE_SHIP_NEED=20
+const MOVE_BLOCKED=21
+
+const DISPLAY=22
+const DISPLAY_RADIUS_X=4
+const DISPLAY_RADIUS_Y=5
+const DISPLAY_WORLD=0
+const DISPLAY_MAP=1
+const DISPLAY_ENTITY=2
+const DISPLAY_BLOCK_BOT=0
+const DISPLAY_BLOCK_TOP=1
+const DISPLAY_BDMG=2
+const DISPLAY_X=3
+const DISPLAY_Y=4
+// *** - - - - - - - - - - Resource/Actions - - - - - - - - - - ***
+const ACTION_ATTACK=0
+const ACTION_HEAL=1
+// *** - - - - - - - - - - Resource/Blocks - - - - - - - - - - ***
+const BLOCK_BOT=0
+const BLOCK_TOP=1
+const BLOCK_NONE=-1
+const BLOCK_GRASS=0
+const BLOCK_STONE=1
+const BLOCK_TREE=2
+const BLOCK_TREE_DEAD=3
+const BLOCK_PEBBLE=4
+const BLOCK_BUSH_FLOWER=5
+const BLOCK_WATER=6
+const BLOCK_WALL_WOOD=7
+const BLOCK_FLOOR_WOOD=8
+const BLOCK_DOOR_WOOD=9
+const BLOCK_ROCK=10
+const BLOCK_FLOOR_ROCK=11
+const BLOCK_SAND=12
+const BLOCK_GROUND_WET=13
+const BLOCK_GROUND_DRY=14
+const BLOCK_GROUND_DIRT=15
+const BLOCK_GROUND_WATER=16
+const BLOCK_GROUND_FINE=17
+const BLOCK_BED_0=18
+const BLOCK_BUSH=19
+const BLOCK_BUSH_GRASS=20
+const BLOCK_TREE_1=21
+const BLOCK_COAL=22
+const BLOCK_TREE_2=23
+const BLOCK_BOOKSHELF_0=24
+const BLOCK_COUNTER_0=25
+const BLOCK_COUNTER_1=26
+const BLOCK_LAMP_0=27
+const BLOCK_SIT_PLACE_0=28
+const BLOCK_SMALL_TABLE_0=29
+const BLOCK_TABLE_0=30
+const BLOCK_COUNT=31
+// *** - - - - - - - - - - Resource/Characters - - - - - - - - - - ***
+const CHR_TIGER=0
+const CHR_DEER=1
+const CHR_OX=2
+const CHR_WHITE_TIGER=3
+const CHR_BLUE_WOLF=4
+const CHR_COUNT=4
+// *** - - - - - - - - - - Resource/Items - - - - - - - - - - ***
+const ITEM_TYPE_SUPPLY=0
+const ITEM_TYPE_TOOL=1
+const ITEM_STONE=0
+const ITEM_COUNT=1
+// *** - - - - - - - - - - Resource/Monsters - - - - - - - - - - ***
+const MON_LADYBUG=0
+const MON_COUNT=1
+// *** - - - - - - - - - - Resource/Objects - - - - - - - - - - ***
+const OBJ_LADYBUG=0
+const OBJ_COUNT=1
+// *** - - - - - - - - - - Resource/Tools - - - - - - - - - - ***
+const TOOL_PICKAXE=0
+const TOOL_AXE=1
+const TOOL_SHOVEL=2
+const TOOL_SWORD=3
+const TOOL_FISHING=4
+const TOOL_WATERING=5
+const TOOL_COUNT=6
+// targets for the tool
+const TOOL_TARGET_BLOCK=0
+const TOOL_TARGET_OBJ=1
+//ele
+const txt_ip = document.getElementById('ip')
+const txt_mail = document.getElementById('mail')
+const txt_usr= document.getElementById('usr')
+const txt_pwd= document.getElementById('pwd')
+const txt_out= document.getElementById('output')
+const txt_console = document.getElementById('console')
+const controls = document.getElementById('controls')
+//con
+let socket = null
+function connect(ishttps){
+    if(ishttps)
+        socket = new WebSocket('wss://'+txt_ip.value)
+    else
+        socket = new WebSocket('ws://'+txt_ip.value)
+    socket.addEventListener('open',function(){
+        txt_console.value += 'Connected!;\n'
+    })
+    socket.addEventListener('message',function(e){
+        var d = $obj(e.data)
+        var dr= ''
+        var cdbg = ''
+        switch(d[0]){
+            case LOGIN_SUCCESS:
+                controls.style.visibility='visible'
+                getStatus()
+                break
+            case DISPLAY:
+                var dl = 8
+                var dc = 12
+                if(d[1] === DISPLAY_WORLD){
+                    for(let dd = 0; dd<d[2].length; dd++){
+                        if(dl === 4 && dc ===6){
+                            dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/cat-face_1f431.png">'
+                        }else switch(d[2][dd]){
+                            case '@':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/cat-face_1f431.png">'
+                                break
+                            case 'o':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/water-wave_1f30a.png">'
+                                break
+                            case 's':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/sweat-droplets_1f4a6.png">'
+                                break
+                            case 'b':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/beach-with-umbrella_1f3d6.png">'
+                                break
+                            case 'g':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/seedling_1f331.png">'
+                                break
+                            case 'j':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/deciduous-tree_1f333.png">'    
+                                break
+                            case 'd':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/desert_1f3dc.png">'
+                                break
+                            case 'f':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/cloud-with-snow_1f328.png">'
+                                break
+                            case 'r':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/droplet_1f4a7.png">'
+                                break
+                            case 'm':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/google/241/mountain_26f0.png">'
+                                break
+                            case 'v':
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/volcano_1f30b.png">'
+                                break
+                            default:
+                                dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/cross-mark_274c.png">'
+                                break
+                        }
+                        if(dl > 0){
+                            dl--
+                        }else{
+                            dr+='<br>'
+                            dl=8
+                            if(dc > 0)
+                                dc--
+                            else
+                                dc = 12
+                        }
+                    }
+                    txt_out.innerHTML = dr
+                }else if(d[1] === DISPLAY_MAP){
+                    var dsb = ''
+                    for(let db = 0; db < 2; db++)
+                    for(let dd = 0; dd < d[2][db].length; dd++){//block
+                        switch(d[2][db][dd]){
+                            case '_':
+                                cdbg += dsb + ','
+                                if(dl === 4 && dc ===6){
+                                    dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/cat-face_1f431.png">'
+                                }else switch(parseInt(dsb)){
+                                    //dr+='<img width="20" height="20" src="">'
+                                    case BLOCK_GRASS:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/seedling_1f331.png">'
+                                        break
+                                    case BLOCK_STONE:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/rock_1faa8.png">'
+                                        break
+                                    case BLOCK_TREE:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/deciduous-tree_1f333.png">'    
+                                        break
+                                    case BLOCK_TREE_DEAD:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/wilted-flower_1f940.png">'
+                                        break
+                                    case BLOCK_PEBBLE:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/sparkles_2728.png">'
+                                        break
+                                    case BLOCK_BUSH_FLOWER:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/rose_1f339.png">'
+                                        break
+                                    case BLOCK_WATER:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/droplet_1f4a7.png">'
+                                        break
+                                    case BLOCK_WALL_WOOD:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/large-brown-square_1f7eb.png">'
+                                        break
+                                    case BLOCK_FLOOR_WOOD:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/black-square-button_1f532.png">'
+                                        break
+                                    case BLOCK_DOOR_WOOD:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/door_1f6aa.png">'
+                                        break
+                                    case BLOCK_ROCK:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/white-square-button_1f533.png">'
+                                        break
+                                    case BLOCK_FLOOR_ROCK:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/black-large-square_2b1b.png">'
+                                        break
+                                    case BLOCK_SAND:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/large-yellow-square_1f7e8.png>'
+                                        break
+                                    case BLOCK_GROUND_DIRT:
+                                    case BLOCK_GROUND_DRY:
+                                    case BLOCK_GROUND_FINE:
+                                    case BLOCK_GROUND_WATER:
+                                    case BLOCK_GROUND_WET:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/large-brown-circle_1f7e4.png">'
+                                        break
+                                    case BLOCK_BED_0:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/bed_1f6cf.png">'
+                                        break
+                                    case BLOCK_BUSH:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/tulip_1f337.png">'
+                                        break
+                                    case BLOCK_BUSH_GRASS:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/white-flower_1f4ae.png">'
+                                        break
+                                    case BLOCK_TREE_1:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/evergreen-tree_1f332.png">'
+                                        break
+                                    case BLOCK_COAL:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/black-large-square_2b1b.png">'
+                                        break
+                                    case BLOCK_TREE_2:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/palm-tree_1f334.png">'
+                                        break
+                                    case BLOCK_BOOKSHELF_0:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/books_1f4da.png">'
+                                        break
+                                    default:
+                                        dr+='<img width="20" height="20" src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/241/cross-mark_274c.png">'
+                                        break
+                                }
+                                if(dl > 0){
+                                    dl--
+                                }else{
+                                    dr+='<br>'
+                                    dl=8
+                                    if(dc > 0)
+                                        dc--
+                                    else
+                                        dc = 12
+                                }
+                                dsb=''
+                                break
+                            default:
+                                dsb+=d[2][db][dd]
+                                break
+                        }
+                    }
+                    txt_out.innerHTML = dr
+                }
+                break
+            default:
+                switch(d[0]){
+                    case LOGIN_FIRST:
+                        dr = 'Login First!'
+                        break
+                    case LOGIN_ALREADY:
+                        dr = 'Login Already!'
+                        break
+                    case LOGIN_ALREADY_ANOTHER:
+                        dr = 'Another session has logged in!'
+                        break
+                    case LOGIN_USR_NOT_EXIST:
+                        dr = 'Invalid username.'
+                        break
+                    case LOGIN_INVALID:
+                        dr = 'Insufficient login input.'
+                        break
+                    case LOGIN_TOO_MUCH:
+                        dr = 'Too many login attempts, try again in '+d[1]+' seconds!'
+                        break
+                    case LOGIN_WRONG_PWD:
+                        dr = 'Wrong password!'
+                        break
+                    case LOGIN_GAME_DATA_NOT_EXIST:
+                        dr = 'Server does not detect you game data!'
+                        break
+                    case REGISTER_FAIL:
+                        dr = 'Registeration is failed due to unknown reason.'
+                        break
+                    case REGISTER_INVALID:
+                        dr = 'Data input is invalid'
+                        break
+                    case REGISTER_SUCCESS:
+                        dr = 'Registeration is successful.'
+                        break
+                    case REGISTER_USR_EXIST:
+                        dr = 'Chosen username is already exists.'
+                        break
+                    case SERVER_SHUTDOWN:
+                        dr = 'Server is shutting down, switch to another server.'
+                        break
+                    
+                    case PLAYER_STATUS:
+                        dr = 'Player Status: '
+                        break
+                    case RENAME_SUCCESS:
+                        dr = 'Rename successful!'
+                        break
+                    
+                    case MOVE_SLOW:
+                        dr+= 'Slow movement.'
+                        break
+                    case MOVE_FOOT_NEED:
+                        dr = 'Must be on foot.'
+                        break
+                    case MOVE_BOAT_NEED:
+                        dr = 'Boat needed.'
+                        break
+                    case MOVE_SHIP_NEED:
+                        dr = 'Ship needed.'
+                        break
+                    case MOVE_BLOCKED:
+                        dr = 'Can \'t go here.'
+                        break
+                }
+                for(let ddA in d){
+                    if(isNaN(parseInt(ddA))) dr += ddA + '=' + d[ddA] + ' '
+                }
+                txt_console.value += dr + '\n'
+                break
+        }
+        console.log(cdbg + e.data)
+    })
+    socket.addEventListener('error',function(e){
+        txt_out.value += e.message+'\n'
+    })
+}
+//cmds
+function $str(obj){return JSON.stringify(obj)}
+function $obj(str){return JSON.parse(str)}
+function shutdown(){
+    socket.send($str({0: TERMINATE, 1: server_key}))
+}
+function register(){
+    socket.send($str({0: REGISTER, 1: txt_usr.value, 2: txt_pwd.value, 3: txt_mail.value}))
+}
+function login(){
+    socket.send($str({0: LOGIN, 1: txt_usr.value, 2: txt_pwd.value}))
+}
+function getStatus(){
+    socket.send($str({0: GET_STATUS}))
+}
+function playerRename(name){
+    socket.send($str({0: RENAME, 1: name}))
+}
+function moveUp(){socket.send($str({0:MOVE_UP}))}
+function moveDown(){socket.send($str({0:MOVE_DOWN}))}
+function moveLeft(){socket.send($str({0:MOVE_LEFT}))}
+function moveRight(){socket.send($str({0:MOVE_RIGHT}))}
+function getIn(){socket.send($str({0:GET_IN}))}
+        </script>
+    </body>
+</html>

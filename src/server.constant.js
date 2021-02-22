@@ -1,0 +1,269 @@
+/*!
+ * Server constants.
+ * 
+ * @author SysError99
+ * @license Proprietary
+ */
+module.exports = {
+/**
+ * Does it run on HTTPS?
+ * 
+ * Use HTTPS in production!
+ */
+ HTTPS:false
+/**
+ * SSL certificate.
+ */
+,SSL_CERT: '/etc/letsencrypt/live/syserrorgame.duckdns.org/cert.pem'
+/**
+ * SSL certificate private key.
+ */
+,SSL_PKEY: '/etc/letsencrypt/live/syserrorgame.duckdns.org/privkey.pem'
+/**
+ * Server connection port.
+ */
+,SERVER_PORT: process.argv[2]
+/**
+ * Server key, for critical operations.
+ * 
+ * - - - - - - - - - - DO NOT USE THIS IN PRODUCTION! - - - - - - - - - - 
+ */
+,SERVER_KEY: 'b51A1Ui23SXji266'
+/**
+ * Server salt, for salting hash values.
+ * 
+ * - - - - - - - - - - DO NOT USE THIS IN PRODUCTION! - - - - - - - - - - 
+ */
+,SERVER_SALT: 'f88i0tPzieT942XtXKxWpy9Nq18jYR7iE09TVUqeU0V1pY8Rm1Ad8d9E1Yx0fG92q5kQA7V9RKyKQWXQ953C6O9SZ3v2zPrB8d34zbNKTH2VLq423H1JnYgwoEhV0sH2'
+/**
+ * Does main server run on HTTPS?
+ * 
+ * Use HTTPS in production!
+ */
+,MAIN_HTTPS: false
+/**
+ * Main server address
+ */
+,MAIN_URL: '127.0.0.1'
+/**
+ * Main server port.
+ */
+,MAIN_PORT:8079
+/**
+ * Main server port (HTML)
+ */
+,MAIN_EXPRESS_PORT:8078
+/**
+ * Main server only accepts internal address?
+ */
+,MAIN_INTERNAL_ONLY:true
+/**
+ * Main server internal addresses
+ */
+,MAIN_INTERNAL_ADDR:[
+    '::ffff:127.0.0.1'
+]
+/**
+ * Main server SSL certificate.
+ */
+,MAIN_SSL_CERT: ''
+/**
+ * Main server SSL certificate private key.
+ */
+,MAIN_SSL_PKEY: ''
+//*** - - - - - - - - - - Map Properties - - - - - - - - - - ***
+/**
+ * Map max size X. 
+ */
+,MAP_MAX_X:256
+/**
+ * Map max size Y.
+ */
+,MAP_MAX_Y:256
+// *** - - - - - - - - - - Client Commands - - - - - - - - - - ***
+,LOGIN:0
+,REGISTER:1
+,REGISTER_MOBILE:2
+
+,TERMINATE:3
+
+,GET_STATUS:4
+,PLAYER_RENAME:5
+
+,MOVE_UP:6
+,MOVE_DOWN:7
+,MOVE_LEFT:8
+,MOVE_RIGHT:9
+,GET_IN:10
+
+,BLOCK_HIT:11
+// *** - - - - - - - - - - Server Responses - - - - - - - - - - ***
+,INPUT_INVALID:0
+,LOGIN_FIRST:1
+,LOGIN_TOO_MUCH:2
+,LOGIN_INVALID:3
+,LOGIN_USR_NOT_EXIST:4
+,LOGIN_GAME_DATA_NOT_EXIST:5
+,LOGIN_WRONG_PWD:6
+,LOGIN_ALREADY:7
+,LOGIN_ALREADY_ANOTHER:8
+,LOGIN_SUCCESS:9
+
+,REGISTER_FAIL:10
+,REGISTER_INVALID:11
+,REGISTER_USR_EXIST:12
+,REGISTER_SUCCESS:13
+
+,SERVER_SHUTDOWN:14
+
+,PLAYER_STATUS:15
+,RENAME_SUCCESS:16
+
+,MOVE_SLOW:17
+,MOVE_FOOT_NEED:18
+,MOVE_BOAT_NEED:19
+,MOVE_SHIP_NEED:20
+,MOVE_BLOCKED:21
+
+,DISPLAY:22
+,DISPLAY_RADIUS_X:4
+,DISPLAY_RADIUS_Y:5
+,DISPLAY_WORLD:0
+,DISPLAY_MAP:1
+,DISPLAY_ENTITY:2
+,DISPLAY_FRACTION:3
+,DISPLAY_BLOCK_BOT:0
+,DISPLAY_BLOCK_TOP:1
+,DISPLAY_BDMG:2
+// *** - - - - - - - - - - Resource/Actions - - - - - - - - - - ***
+,ACTION_ATTACK:0
+,ACTION_HEAL:1
+// *** - - - - - - - - - - Resource/Blocks - - - - - - - - - - ***
+,BLOCK_BOT:0
+,BLOCK_TOP:1
+,BLOCK_NONE:-1
+,BLOCK_GRASS:0
+,BLOCK_STONE:1
+,BLOCK_TREE:2
+,BLOCK_TREE_DEAD:3
+,BLOCK_PEBBLE:4
+,BLOCK_BUSH_FLOWER:5
+,BLOCK_WATER:6
+,BLOCK_WALL_WOOD:7
+,BLOCK_FLOOR_WOOD:8
+,BLOCK_DOOR_WOOD:9
+,BLOCK_ROCK:10
+,BLOCK_FLOOR_ROCK:11
+,BLOCK_SAND:12
+,BLOCK_GROUND_WET:13
+,BLOCK_GROUND_DRY:14
+,BLOCK_GROUND_DIRT:15
+,BLOCK_GROUND_WATER:16
+,BLOCK_GROUND_FINE:17
+,BLOCK_BED_0:18
+,BLOCK_BUSH:19
+,BLOCK_BUSH_GRASS:20
+,BLOCK_TREE_1:21
+,BLOCK_COAL:22
+,BLOCK_TREE_2:23
+,BLOCK_BOOKSHELF_0:24
+,BLOCK_COUNTER_0:25
+,BLOCK_COUNTER_1:26
+,BLOCK_LAMP_0:27
+,BLOCK_SIT_PLACE_0:28
+,BLOCK_SMALL_TABLE_0:29
+,BLOCK_TABLE_0:30
+,BLOCK_COUNT:31
+// *** - - - - - - - - - - Resource/Characters - - - - - - - - - - ***
+,CHR_TIGER:0
+,CHR_DEER:1
+,CHR_OX:2
+,CHR_WHITE_TIGER:3
+,CHR_BLUE_WOLF:4
+,CHR_COUNT:4
+// *** - - - - - - - - - - Resource/Items - - - - - - - - - - ***
+,ITEM_TYPE_SUPPLY:0
+,ITEM_TYPE_TOOL:1
+,ITEM_STONE:0
+,ITEM_LOG:1
+,ITEM_WALL_WOOD:2
+,ITEM_NRG_DRINK:3
+,ITEM_FLOOR_WOOD:4
+,ITEM_DOOR_WOOD:5
+,ITEM_COIN:6
+,ITEM_IRON_ORE:7
+,ITEM_SMELTER:8
+,ITEM_IRON_BAR:9
+,ITEM_SAND:10
+,ITEM_COAL:11
+,ITEM_SUNFLOWER:12
+,ITEM_CORN:13
+,ITEM_AVOCADO:14
+,ITEM_ORANGE:15
+,ITEM_COFFEE:16
+,ITEM_POTATO:17
+,ITEM_CASSAVA:18
+,ITEM_STRAWBERRY:19
+,ITEM_GRAPE:20
+,ITEM_WHEAT:21
+,ITEM_RICE:22
+,ITEM_PINEAPPLE:23
+,ITEM_LEMON:24
+,ITEM_EGGPLANT:25
+,ITEM_MELON:26
+,ITEM_TOMATO:27
+,ITEM_TULIP:28
+,ITEM_CUCUMBER:29
+,ITEM_ROSE:30
+,ITEM_TURNIP:31
+,ITEM_SEED_SUNFLOWER:32
+,ITEM_SEED_CORN:33
+,ITEM_SEED_AVOCADO:34
+,ITEM_SEED_ORANGE:35
+,ITEM_SEED_COFFEE:36
+,ITEM_SEED_POTATO:37
+,ITEM_SEED_CASSAVA:38
+,ITEM_SEED_STRAWBERRY:39
+,ITEM_SEED_GRAPE:40
+,ITEM_SEED_WHEAT:41
+,ITEM_SEED_RICE:42
+,ITEM_SEED_PINEAPPLE:43
+,ITEM_SEED_LEMON:44
+,ITEM_SEED_EGGPLANT:45
+,ITEM_SEED_MELON:46
+,ITEM_SEED_TOMATO:47
+,ITEM_SEED_TULIP:48
+,ITEM_SEED_CUCUMBER:49
+,ITEM_SEED_ROSE:50
+,ITEM_SEED_TURNIP:51
+,ITEM_BED:52
+,ITEM_TABLE:53
+,ITEM_SIT_PLACE:54
+,ITEM_GUNPOWDER:55
+,ITEM_TNT:56
+,ITEM_FISH:57
+,ITEM_FISH_COOK:58
+,ITEM_WEB:59
+,ITEM_SHELF:60
+,ITEM_LAMP:61
+,ITEM_BALLOON:62
+,ITEM_BED_TABLE:63
+,ITEM_WATER:64
+,ITEM_COUNT:65
+// *** - - - - - - - - - - Resource/Objects - - - - - - - - - - ***
+,OBJ_CHEST:0
+,OBJ_COUNT:1
+// *** - - - - - - - - - - Resource/Units - - - - - - - - - - ***
+,UNIT_LADYBUG:0
+,UNIT_COUNT:1
+// *** - - - - - - - - - - Resource/Tools - - - - - - - - - - ***
+,TOOL_TARGET_BLOCK:0
+,TOOL_TARGET_OBJ:1
+,TOOL_PICKAXE:0
+,TOOL_AXE:1
+,TOOL_SHOVEL:2
+,TOOL_SWORD:3
+,TOOL_FISHING:4
+,TOOL_WATERING:5
+,TOOL_COUNT:6
+}
